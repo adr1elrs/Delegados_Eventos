@@ -7,11 +7,13 @@ public class FootmanComportamiento : MonoBehaviour
     public float speed = 3.0f;
     private Transform objetivoActual;
     private Renderer rend;
+    private Rigidbody rb;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rend = GetComponentInChildren<Renderer>();
+        rb = GetComponentInChildren<Rigidbody>();
     }
 
     void OnEnable() {
@@ -32,12 +34,15 @@ public class FootmanComportamiento : MonoBehaviour
         objetivoActual = escudoTipo2;
     }
 
-    private void Update() {
+    private void FixedUpdate() {
         if (objetivoActual != null) {
-            Vector3 direccion = (objetivoActual.position - transform.position).normalized;
-            transform.position = Vector3.MoveTowards(transform.position, objetivoActual.position, speed * Time.deltaTime);
-            Vector3 mirar = new Vector3(objetivoActual.position.x, transform.position.y, objetivoActual.position.z);
-            transform.LookAt(mirar);
+            Vector3 direccionMirada = new Vector3(objetivoActual.position.x - transform.position.x, 0f, objetivoActual.position.z - transform.position.z).normalized;
+            if (direccionMirada != Vector3.zero) {
+                Quaternion rotacionDeseada = Quaternion.LookRotation(direccionMirada);
+                rb.MoveRotation(rotacionDeseada);
+            }
+            Vector3 nuevaPosicion = rb.position + direccionMirada * speed * Time.fixedDeltaTime;
+            rb.MovePosition(nuevaPosicion);
         }
     }
 
